@@ -1,0 +1,9 @@
+project.4coder
+# Ignore Batch Files
+*.bat
+# Ignore All documents
+build/
+debug/
+docs/
+RTE/
+res/
