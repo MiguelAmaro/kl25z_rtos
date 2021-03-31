@@ -1,7 +1,4 @@
-project.4coder
-# Ignore Batch Files
-*.bat
-# Ignore All documents
+# Directories
 build/
 debug/
 docs/
