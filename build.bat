@@ -1,194 +1,131 @@
-@ECHO OFF
+@echo off
 
-IF NOT EXIST build MKDIR build
+if not exist build mkdir build
 
-SET PATH = %PATH%;"F:\Dev\Embedded\RTOS_KL25Z\build"
-
-REM ************************************************************
-REM ************************************************************
-REM **                                                        **
-REM **                      DEFINITIONS                       **
-REM **                                                        **
-REM ************************************************************
-REM ************************************************************
-
-REM =============              FILES             ===============
-REM ============================================================
-SET Build=CMSIS_CORE
-SET Project_Name=kl25z_rtos
-SET Sources= ..\src\%Project_Name%.c 
-SET Objects= %Project_Name%.o startup_mkl25z4.o system_mkl25z4.o
+rem FILES
+rem ************************************************************
+set BUILD=CMSIS_CORE
+set PROJECT_NAME=kl25z_rtos
+set SOURCES= ..\src\%PROJECT_NAME%.c 
+set OBJECTS= %PROJECT_NAME%.o startup_MKL25Z4.o system_MKL25Z4.o
 
 
-REM ==================         TARGET         ==================
-REM ============================================================
-SET TARGET=arm-arm-none-eabi
-SET BOARD=list
-SET MCPU=cortex-m0plus
-SET MFPU=none
-SET ARCH=armv6-m
+rem TARGET
+rem ************************************************************
+set TARGET=arm-arm-none-eabi
+set BOARD=mkl25z4
+set MCPU=cortex-m0plus
+set MFPU=none
+set ARCH=armv6-m
 
 
-REM =============        COMPILER(ARMCLANG)     ==============
-REM ============================================================
-SET Common= ^
--c ^
--xc ^
--O0 ^
--MD ^
--std=c99 ^
+rem BUILD TOOLS
+rem ************************************************************
+set GCC=F:\Dev_Tools\ARMGNU\bin\arm-none-eabi-gcc.exe
+set LD=F:\Dev_Tools\ARMGNU\bin\arm-none-eabi-ld.exe
+set OBJDUMP=F:\Dev_Tools\ARMGNU\bin\arm-none-eabi-objdump.exe
+set READELF=F:\Dev_Tools\ARMGNU\bin\arm-none-eabi-readelf.exe
+
+
+rem ************************************************************
+rem COMPILER(ARMGCC) OPTIONS
+rem ************************************************************
+
+set GCC_COMMON=^
+-mcpu=%MCPU% ^
+-march=%ARCH% ^
+-c -std=gnu99 ^
+-O1 ^
 -gdwarf-4 ^
--fno-rtti ^
+-fno-lto -fno-inline-functions ^
 -fshort-wchar ^
--fshort-enums ^
 -funsigned-char ^
 -ffunction-sections
 
-SET Warnings= ^
--Wall ^
+set GCC_WARNINGS=^
 -Wno-packed ^
 -Wno-unused-macros ^
--Wno-documentation ^
 -Wno-sign-conversion ^
 -Wno-missing-noreturn ^
--Wno-reserved-id-macro ^
--Wno-license-management ^
--Wno-missing-prototypes ^
--Wno-parentheses-equality ^
--Wno-nonportable-include-path ^
--Wno-documentation-unknown-command ^
--Wno-missing-variable-declarations
+-Wno-missing-prototypes
 
-SET Compiler_Flags= %Common% %Warnings%
+set GCC_FLAGS=%GCC_COMMON% %GCC_WARNINGS%
 
-SET Compiler_Macros= -DMKL25Z128xxx4 -D_RTE_ -D__EVAL
+set GCC_MACROS=^
+-DMKL25Z128xxx4 ^
+-D_RTE_ ^
+-D_RTE_ ^
+-DDEBUG ^
+-D__EVAL
 
-SET Include_Directories= ^
+set GCC_INCLUDE_PATHS= ^
 -I ..\src\ ^
+-I ..\src\systems\mkl25z128xxx4\ ^
 -I F:\Dev\Common\ ^
--I ..\RTE\_KL25Z ^
--I ..\RTE\Device\MKL25Z128xxx4 ^
 -I C:\Users\mAmaro\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include ^
 -I C:\Users\mAmaro\AppData\Local\Arm\Packs\Keil\Kinetis_KLxx_DFP\1.15.0\Device\Include
 
 
-REM ====================   LINKER(ARMLINK)   ===================
-REM ============================================================
-SET Memory_Layout= ^
+rem ************************************************************
+rem LINKER(ARMLD) OPTIONS
+rem ************************************************************
+
+set LD_MEMORY=^
 --first __Vectors ^
 --entry 0x00000000 ^
 --rw-base 0x1FFFF000 ^
 --ro-base 0x00000000 ^
 --entry Reset_Handler
 
-SET Common_Linker_Flags= %Memory_Layout% ^
---summary_stderr ^
---strict ^
---map ^
---xref ^
---symbols ^
---callgraph ^
---info sizes ^
---info totals ^
---info unused ^
---info veneers ^
---info summarysizes ^
---load_addr_map_info ^
---list="..\debug\%Project_Name%.map" 
+set LD_FLAGS= ^
+-nostdlib ^
+-L F:\Dev_Tools\ARMGNU\lib\gcc\arm-none-eabi\10.2.1\thumb\v6-m\nofp ^
+-lgcc ^
+-T ..\res\%PROJECT_NAME%.sct
 
-REM --scatter ..\res\%Project_Name%.sct
+rem --summary_stderr --map --xref --strict --debug ^
+rem --symbols --bestdebug --no_remove --callgraph ^
+rem --info sizes --info totals --info unused --info veneers ^
+rem --info summarysizes --load_addr_map_info ^
+rem --list="..\debug\%PROJECT_NAME%.map" 
 
-SET Libraries= "F:\Dev\Embedded\KL25Z Library\Objects\KL25ZLibrary.lib"
+set LD_LIBRARIES=
 
 
-REM ************************************************************
-REM ************************************************************
-REM **                                                        **
-REM **                       START BUILD                      **
-REM **                                                        **
-REM ************************************************************
-REM ************************************************************
+rem ************************************************************
+rem START BUILD
+rem ************************************************************
+set path = "F:\Dev\Embedded\RTOS_KL25Z\build";path
 
-PUSHD build
+pushd build
 
-ECHO ==========                 COMPILE                ==========
-ECHO ============================================================
+rem ==========                 COMPILE                ==========
+rem ============================================================
+%GCC% %GCC_FLAGS% %GCC_MACROS% %GCC_INCLUDE_PATHS% ^
+-o gnu_%PROJECT_NAME%.axf ^
+%SOURCES%
 
-REM //~ COMPILE MAIN SOURCE FILE
-CALL C:\Keil_v5\ARM\ARMCLANG\bin\armclang.exe ^
---target=%TARGET% ^
--march=%ARCH% ^
--mcpu=%MCPU% ^
-%Compiler_Flags% ^
-%Compiler_Macros% ^
-%Include_Directories% ^
-%Sources%
+rem //~ COMPILE STARTUP AND SYSTEM ASSEMBLY FILES
+rem call %GCC% %GCC_FLAGS% %GCC_MACROS% %GCC_INCLUDE_PATHS% ^
+rem ..\src\systems\mkl25z128xxx4\system_MKL25Z4.c
 
-REM //~ COMPILE OTHER SOURCE FILES
-REM CALL C:\Keil_v5\ARM\ARMCLANG\bin\armclang.exe ^
-REM --target=%TARGET% ^
-REM -march=%ARCH% ^
-REM -mcpu=cortex-m0plus ^
-REM %Compiler_Flags% ^
-REM %Compiler_Macros% ^
-REM %Include_Directories% ^
-REM ..\src\nRF24L01.c
+rem //~ COMPILE LEGACY ASSMBLY FILE
+%GCC% %GCC_FLAGS% %GCC_MACROS% %GCC_INCLUDE_PATHS% ^
+-o startup_MKL25Z4.o ^
+..\src\systems\mkl25z128xxx4\gnu_startup_MKL25Z4.s
 
-REM //~ COMPILE STARTUP AND SYSTEM ASSEMBLY FILES -----> !!! DOES NOT WORK !!!
-CALL C:\Keil_v5\ARM\ARMCLANG\bin\armclang.exe ^
---target=%TARGET% ^
--march=%ARCH% ^
--mcpu=%MCPU% ^
--mfpu=%MFPU% ^
--mfloat-abi=softfp ^
-%Compiler_Flags% ^
-%Compiler_Macros% ^
-%Include_Directories% ^
-..\RTE\Device\MKL25Z128xxx4\system_MKL25Z4.c
-
-REM //~ COMPILE LEGACY ASSMBLY FILE
-CALL C:\Keil_v5\ARM\ARMCLANG\bin\armasm.exe ^
---cpu=Cortex-M0plus ^
---debug ^
---diag_suppress=9931 ^
---fpu=None ^
---apcs=/softfp ^
-%Include_Directories% ^
--o ^
-startup_MKL25Z4.o ^
-..\RTE\Device\MKL25Z128xxx4\startup_MKL25Z4.s
+echo ==========                  LINK                  ==========
+rem  ============================================================
+%LD% -o gnu_%PROJECT_NAME%.elf %OBJECTS% %LD_FLAGS%
 
 
-ECHO ==========                  LINK                  ==========
-ECHO ============================================================
 
-CALL C:\Keil_v5\ARM\ARMCLANG\bin\armlink.exe ^
---cpu=Cortex-M0+ ^
--o %Project_Name%.axf %Objects% ^
-%Common_Linker_Flags% ^
---libpath=C:\Keil_v5\ARM\ARMCLANG\lib ^
---userlibpath=%Libraries%
+echo ==========               DEBUG SHIT               ==========
+rem  ============================================================
+call %OBJDUMP% -h -t gnu_%PROJECT_NAME%.axf
 
-REM //~ MAKE BINARY
-CALL C:\Keil_v5\ARM\ARMCLANG\bin\fromelf.exe ^
---cpu=Cortex-M0plus ^
---bincombined ^
---output=%Project_Name%.bin ^
-%Project_Name%.axf
+rem call %READELF% -h gnu_%PROJECT_NAME%.elf
 
-CALL C:\Keil_v5\ARM\ARMCLANG\bin\fromelf.exe ^
---text ^
--c ^
--s ^
---output=%Project_Name%.lst ^
-%Project_Name%.axf
+popd
 
-REM //~ CONVERT AXF TO DEBUGGABLE ELF
-CALL C:\Keil_v5\ARM\ARMCLANG\bin\fromelf.exe ^
---output=%Project_Name%.elf ^
-%Project_Name%.axf
-
-POPD
-
-PAUSE
-
+pause

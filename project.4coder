@@ -1,8 +1,9 @@
-Version(2);
+version(2);
 
-project_name =  "kl25z_rtos";
+project_name = "kl25z_rtos";
 
-patterns = {
+patterns = 
+{
     "*.c",
     "*.h",
     "*.bat",
@@ -10,60 +11,66 @@ patterns = {
     "*.scf",
 };
 
-blacklist_patterns = {
+blacklist_patterns =
+{
     ".*",
 };
 
-load_paths_win = {
-	{"."}
+load_paths = 
+{
+    .win = 
+    { 
+        { .path =   ".", .recursive = false, .relative = true },
+        { .path = "src", .recursive =  true, .relative = true },
+    },
+	
 };
 
-load_paths = {
-	{ 
-		{ {"."}, .recursive = true, .relative = true },
-        .os = "win" 
-	},
-};
-
-command_list = {
-	{  
-		.name             = "build",
-		.out              = "*compilation*",
+commands =
+{
+    .build =
+    {
+		.win              = "build.bat --gnu",
+        .out              = "*compilation*",
 		.footer_panel     = true, 
 		.save_dirty_files = true, 
 		.cursor_at_end    = false,
-		.cmd              = {
-			{"build.bat", .os = "win" }, 
-		},
 	},
-    {   .name             = "flash",
-        .out              = "*flash*",
+    
+    .flash =
+    {
+		.win              = "flash.bat",
 		.footer_panel     = false, 
 		.save_dirty_files = false, 
 		.cursor_at_end    = false,
-		.cmd              = {
-			{ "flash.bat", .os = "win" },
-		},
 	},
-	{   .name             = "debug",
-		.cmd              = {
-			{ "debug.bat", .os = "win" },
-		},
+    
+    .debug =
+    {
+        .win              = "debug.bat",
+        .footer_panel     = false, 
+		.save_dirty_files = false, 
+		.cursor_at_end    = false,
 	},
-	{.name             = "read-elf",
-		.cmd              = {
-			{ 
-                "START cmd /k F:\Dev_Tools\GNU_Arm_Embedded_Toolchain\bin\arm-none-eabi-readelf.exe -S .\build\kl25z_rtos.axf", .os = "win" },
-		},
-	},
-    {.name             = "disassemble",
-		.cmd              = {
-			{ "START cmd /c F:\Dev_Tools\GNU_Arm_Embedded_Toolchain\bin\arm-none-eabi-readelf.exe -S .\build\kl25z_rtos.axf", .os = "win" },
-		},
-	},
+    
+	.readelf =
+    {
+		.win = 
+            "START cmd /k F:\Dev_Tools\GNU_Arm_Embedded_Toolchain\bin\arm-none-eabi-readelf.exe -S .\build\kl25z_rtos.axf",
+    },
+    
+    .disassemble =
+    {
+        .win = "START cmd /c F:\Dev_Tools\GNU_Arm_Embedded_Toolchain\bin\arm-none-eabi-readelf.exe -S .\build\kl25z_rtos.axf",
+    }
+    
 };
 
-fkey_command[1] = "build";
-fkey_command[2] = "flash";
-fkey_command[3] = "debug";
-fkey_command[4] = "read-elf";
+fkey_command = 
+{
+    .F1  = "build",
+    
+    .F12 = "flash",
+    .F11 = "debug",
+    .F10 = "readelf",
+};

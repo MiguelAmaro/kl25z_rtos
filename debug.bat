@@ -32,7 +32,11 @@ REM **                                                        **
 REM ************************************************************
 REM ************************************************************
 
-START cmd /c "F:\Dev_Tools\GNU_Arm_Embedded_Toolchain\bin\arm-none-eabi-gdb.exe --quiet --nx -ex "target extended-remote localhost:3333" -f ./build/kl25z_rtos.axf"
+REM START cmd /c "F:\Dev_Tools\GNU_Arm_Embedded_Toolchain\bin\arm-none-eabi-gdb.exe --quiet --nx -ex "target extended-remote localhost:3333" -f ./build/kl25z_rtos.axf"
 
+REM START cmd /c "F:\Dev_Tools\LLVM\bin\lldb.exe -options
+REM --quiet --nx -ex "target extended-remote localhost:3333" -f ./build/kl25z_rtos.axf"
+
+START cmd /c "F:\Dev_Tools\gcc-arm-none-eabi-10-2020-q4-major\bin\arm-none-eabi-gdb.exe --quiet --nx -ex "target extended-remote localhost:3333" -f ./build/kl25z_rtos.elf"
 
 
