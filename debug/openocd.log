@@ -1,1 +1,9 @@
-Error: couldn't bind telnet to socket on port 4444: No error
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x81000000 pc: 0x00000a3c msp: 0x1ffff078
+invalid command name "restart"
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x81000000 pc: 0x00000164 msp: 0x1ffff178
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x00000164 msp: 0x1ffff178
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x00000164 msp: 0x1ffff178
